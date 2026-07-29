@@ -3,98 +3,99 @@ import pytest
 from trkit import is_valid_iban, is_valid_tckn
 
 
-def tckn_uret(ilk_dokuz: str) -> str:
-    """Verilen 9 haneye göre kontrol hanelerini hesaplayıp geçerli bir TCKN üretir.
+def make_tckn(first_nine: str) -> str:
+    """Build a valid TCKN by computing the check digits for the given 9 digits.
 
-    Testin bağımsız bir referans uygulaması: doğrulayıcıyı kendi mantığıyla
-    değil, algoritmanın tanımıyla karşılaştırır.
+    An independent reference implementation for the tests: it compares the
+    validator against the definition of the algorithm rather than against its
+    own logic.
     """
-    d = [int(c) for c in ilk_dokuz]
-    onuncu = (sum(d[0::2]) * 7 - sum(d[1::2])) % 10
-    on_birinci = (sum(d) + onuncu) % 10
-    return ilk_dokuz + str(onuncu) + str(on_birinci)
+    d = [int(c) for c in first_nine]
+    tenth = (sum(d[0::2]) * 7 - sum(d[1::2])) % 10
+    eleventh = (sum(d) + tenth) % 10
+    return first_nine + str(tenth) + str(eleventh)
 
 
-def test_gecerli_tckn():
+def test_valid_tckn():
     assert is_valid_tckn("10000000146")
 
 
-def test_gecerli_tckn_int_kabul_eder():
+def test_valid_tckn_accepts_int():
     assert is_valid_tckn(10000000146)
 
 
-def test_gecerli_tckn_bosluklari_kirpar():
+def test_valid_tckn_strips_whitespace():
     assert is_valid_tckn("  10000000146  ")
 
 
 @pytest.mark.parametrize(
-    "ilk_dokuz",
+    "first_nine",
     ["123456789", "987654321", "100000001", "555555555", "246813579"],
 )
-def test_uretilen_tckn_gecerli(ilk_dokuz):
-    assert is_valid_tckn(tckn_uret(ilk_dokuz))
+def test_generated_tckn_is_valid(first_nine):
+    assert is_valid_tckn(make_tckn(first_nine))
 
 
 @pytest.mark.parametrize(
-    ("numara", "sebep"),
+    ("number", "reason"),
     [
-        ("", "boş"),
-        ("1234567890", "10 hane"),
-        ("123456789012", "12 hane"),
-        ("0123456789", "sıfırla başlıyor"),
-        ("01234567890", "sıfırla başlıyor, 11 hane"),
-        ("1234567890a", "harf içeriyor"),
-        ("11111111111", "kontrol hanesi tutmuyor"),
-        ("10000000148", "son hane yanlış"),
-        ("10000000156", "onuncu hane yanlış"),
-        ("١٢٣٤٥٦٧٨٩٠١", "ASCII olmayan rakamlar"),
+        ("", "empty"),
+        ("1234567890", "10 digits"),
+        ("123456789012", "12 digits"),
+        ("0123456789", "starts with zero"),
+        ("01234567890", "starts with zero, 11 digits"),
+        ("1234567890a", "contains a letter"),
+        ("11111111111", "check digit does not match"),
+        ("10000000148", "last digit wrong"),
+        ("10000000156", "tenth digit wrong"),
+        ("١٢٣٤٥٦٧٨٩٠١", "non-ASCII digits"),
     ],
 )
-def test_gecersiz_tckn(numara, sebep):
-    assert not is_valid_tckn(numara), sebep
+def test_invalid_tckn(number, reason):
+    assert not is_valid_tckn(number), reason
 
 
-def test_uretilen_tcknin_son_hanesi_bozulunca_gecersiz():
-    gecerli = tckn_uret("123456789")
-    bozuk = gecerli[:-1] + str((int(gecerli[-1]) + 1) % 10)
-    assert is_valid_tckn(gecerli)
-    assert not is_valid_tckn(bozuk)
+def test_generated_tckn_invalid_when_last_digit_corrupted():
+    valid = make_tckn("123456789")
+    corrupted = valid[:-1] + str((int(valid[-1]) + 1) % 10)
+    assert is_valid_tckn(valid)
+    assert not is_valid_tckn(corrupted)
 
 
-def test_gecerli_iban():
+def test_valid_iban():
     assert is_valid_iban("TR33 0006 1005 1978 6457 8413 26")
 
 
-def test_gecerli_iban_bosluksuz():
+def test_valid_iban_without_spaces():
     assert is_valid_iban("TR330006100519786457841326")
 
 
-def test_gecerli_iban_kucuk_harf():
+def test_valid_iban_lower_case():
     assert is_valid_iban("tr330006100519786457841326")
 
 
 @pytest.mark.parametrize(
-    ("numara", "sebep"),
+    ("number", "reason"),
     [
-        ("", "boş"),
-        ("TR33 0006 1005 1978 6457 8413 27", "kontrol hanesi tutmuyor"),
-        ("TR3300061005197864578413", "24 hane, kısa"),
-        ("TR3300061005197864578413260", "27 hane, uzun"),
-        ("DE89370400440532013000", "TR değil"),
-        ("TRXX0006100519786457841326", "kontrol hanesi rakam değil"),
-        ("TR33000610051978645784132X", "gövdede harf var"),
+        ("", "empty"),
+        ("TR33 0006 1005 1978 6457 8413 27", "check digits do not match"),
+        ("TR3300061005197864578413", "24 characters, too short"),
+        ("TR3300061005197864578413260", "27 characters, too long"),
+        ("DE89370400440532013000", "not a TR IBAN"),
+        ("TRXX0006100519786457841326", "check digits are not numeric"),
+        ("TR33000610051978645784132X", "letter in the body"),
     ],
 )
-def test_gecersiz_iban(numara, sebep):
-    assert not is_valid_iban(numara), sebep
+def test_invalid_iban(number, reason):
+    assert not is_valid_iban(number), reason
 
 
-def test_iban_bitisik_rakam_degisimini_yakalar():
-    """mod-97'nin varlık sebebi: yan yana iki rakamın yer değiştirmesini yakalamak."""
-    gecerli = "TR330006100519786457841326"
-    haneler = list(gecerli)
-    assert haneler[6] != haneler[7], "test anlamlı olsun diye haneler farklı olmalı"
-    haneler[6], haneler[7] = haneler[7], haneler[6]
+def test_iban_catches_adjacent_digit_transposition():
+    """Why mod-97 exists: it catches two adjacent digits being swapped."""
+    valid = "TR330006100519786457841326"
+    digits = list(valid)
+    assert digits[6] != digits[7], "digits must differ for this test to mean anything"
+    digits[6], digits[7] = digits[7], digits[6]
 
-    assert is_valid_iban(gecerli)
-    assert not is_valid_iban("".join(haneler))
+    assert is_valid_iban(valid)
+    assert not is_valid_iban("".join(digits))
