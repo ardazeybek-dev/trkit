@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>trkit — Türkçe metin araçları</title>
+<meta name="description" content="Türkçe metin araçları ve Türkiye'ye özgü doğrulayıcılar: doğru büyük/küçük harf, slug, TC kimlik no, IBAN, plaka. Python paketi.">
+<meta name="theme-color" content="#0d1117">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23e63946'/%3E%3Ctext x='32' y='45' font-family='monospace' font-size='34' font-weight='bold' fill='%23fff' text-anchor='middle'%3Etr%3C/text%3E%3C/svg%3E">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root {
+    --bg: #0d1117;
+    --bg-soft: #161b22;
+    --bg-card: #12171f;
+    --line: #262d38;
+    --text: #e6edf3;
+    --muted: #8b97a6;
+    --accent: #e63946;
+    --accent-soft: rgba(230, 57, 70, .12);
+    --ok: #3fb950;
+    --err: #f85149;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.6;
+    font-size: 16px;
+    overflow-x: hidden;
+  }
+  .wrap { width: 100%; max-width: 880px; margin: 0 auto; padding: 0 20px; }
+
+  /* ---------- hero ---------- */
+  header {
+    position: relative;
+    padding: 72px 0 56px;
+    text-align: center;
+    border-bottom: 1px solid var(--line);
+    background:
+      radial-gradient(60% 120% at 50% 0%, rgba(230,57,70,.14), transparent 70%),
+      var(--bg);
+  }
+  .logo {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: clamp(2.6rem, 9vw, 4rem);
+    font-weight: 700;
+    letter-spacing: -.04em;
+    margin: 0;
+    line-height: 1;
+  }
+  .logo span { color: var(--accent); }
+  .tagline {
+    margin: 18px auto 0;
+    max-width: 30rem;
+    color: var(--muted);
+    font-size: 1.05rem;
+  }
+  .badges { margin-top: 26px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .badge {
+    font-family: var(--mono);
+    font-size: .78rem;
+    padding: 5px 11px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--muted);
+    background: var(--bg-soft);
+    text-decoration: none;
+    transition: border-color .15s, color .15s;
+  }
+  .badge:hover { border-color: var(--accent); color: var(--text); }
+
+  .install {
+    margin: 26px auto 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--mono);
+    font-size: .95rem;
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 11px 14px;
+  }
+  .install .prompt { color: var(--accent); user-select: none; }
+  .copy {
+    border: 0; background: transparent; color: var(--muted); cursor: pointer;
+    font-family: var(--sans); font-size: .8rem; padding: 2px 6px; border-radius: 5px;
+  }
+  .copy:hover { color: var(--text); background: rgba(255,255,255,.06); }
+
+  /* ---------- sections ---------- */
+  section { padding: 56px 0; border-bottom: 1px solid var(--line); }
+  h2 {
+    font-size: 1.35rem;
+    margin: 0 0 8px;
+    letter-spacing: -.02em;
+  }
+  .sub { color: var(--muted); margin: 0 0 28px; font-size: .95rem; max-width: 46rem; }
+
+  /* ---------- problem ---------- */
+  .compare { display: grid; gap: 14px; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 640px) { .compare { grid-template-columns: 1fr; } }
+  .pane {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px;
+    background: var(--bg-card);
+  }
+  .pane h3 {
+    margin: 0 0 14px;
+    font-size: .8rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .pane.bad { border-color: rgba(248,81,73,.3); }
+  .pane.good { border-color: rgba(63,185,80,.3); }
+  .pane.bad h3 { color: var(--err); }
+  .pane.good h3 { color: var(--ok); }
+  .line { font-family: var(--mono); font-size: .9rem; margin-bottom: 10px; }
+  .line:last-child { margin-bottom: 0; }
+  .line .in { color: var(--muted); }
+  .line .arrow { color: #55606f; margin: 0 8px; }
+  .line .out { font-weight: 600; }
+  .bad .out { color: var(--err); }
+  .good .out { color: var(--ok); }
+
+  /* ---------- demo cards ---------- */
+  .cards { display: grid; gap: 16px; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 700px) { .cards { grid-template-columns: 1fr; } }
+  .card {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--bg-card);
+    padding: 20px;
+  }
+  .card h3 { margin: 0 0 4px; font-size: 1rem; letter-spacing: -.01em; }
+  .card .hint { margin: 0 0 16px; color: var(--muted); font-size: .84rem; }
+  .card.wide { grid-column: 1 / -1; }
+
+  label { display: block; font-size: .78rem; color: var(--muted); margin-bottom: 6px; }
+  input[type=text] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: .95rem;
+    padding: 11px 13px;
+    border-radius: 9px;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  input[type=text]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+  .results { margin-top: 16px; display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+  .row { display: grid; grid-template-columns: 8.5rem 1fr; gap: 10px; background: var(--bg-card); padding: 9px 13px; align-items: baseline; }
+  @media (max-width: 480px) { .row { grid-template-columns: 1fr; gap: 2px; } }
+  .row .fn { font-family: var(--mono); font-size: .8rem; color: var(--muted); }
+  .row .val { font-family: var(--mono); font-size: .92rem; word-break: break-word; }
+  .row .val:empty::after { content: "—"; color: var(--line); }
+
+  .verdict {
+    margin-top: 14px;
+    display: flex; align-items: center; gap: 9px;
+    font-size: .95rem; font-weight: 600;
+    padding: 11px 14px; border-radius: 9px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+  }
+  .verdict.valid { color: var(--ok); border-color: rgba(63,185,80,.35); background: rgba(63,185,80,.07); }
+  .verdict.invalid { color: var(--err); border-color: rgba(248,81,73,.35); background: rgba(248,81,73,.07); }
+  .verdict.idle { color: var(--muted); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; }
+
+  .samples { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .samples button {
+    font-family: var(--mono); font-size: .76rem;
+    background: var(--bg-soft); border: 1px solid var(--line); color: var(--muted);
+    padding: 5px 10px; border-radius: 7px; cursor: pointer;
+    transition: color .15s, border-color .15s;
+  }
+  .samples button:hover { color: var(--text); border-color: var(--accent); }
+
+  .plate-out { margin-top: 16px; text-align: center; padding: 22px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+  .plate-big { font-size: 2rem; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; }
+  .plate-big.empty { color: var(--line); }
+  .plate-cap { font-size: .78rem; color: var(--muted); margin-top: 4px; }
+
+  /* ---------- code ---------- */
+  pre {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: .87rem;
+    line-height: 1.65;
+    margin: 0 0 16px;
+  }
+  pre .c { color: var(--muted); }
+  pre .k { color: var(--accent); }
+  pre .s { color: #7ee787; }
+
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .tab {
+    background: var(--bg-soft); border: 1px solid var(--line); color: var(--muted);
+    padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: .85rem; font-family: var(--sans);
+  }
+  .tab[aria-selected=true] { color: var(--text); border-color: var(--accent); background: var(--accent-soft); }
+
+  /* ---------- footer ---------- */
+  footer { padding: 44px 0 60px; text-align: center; color: var(--muted); font-size: .87rem; }
+  footer a { color: var(--text); text-decoration: none; border-bottom: 1px solid var(--line); }
+  footer a:hover { border-color: var(--accent); }
+  .note { margin-top: 18px; font-size: .8rem; max-width: 40rem; margin-inline: auto; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1 class="logo">tr<span>kit</span></h1>
+    <p class="tagline">Türkçe metin araçları ve Türkiye'ye özgü doğrulayıcılar. Python paketi — hem kütüphane, hem komut satırı aracı.</p>
+    <div class="install">
+      <span class="prompt">$</span>
+      <code id="installCmd">pip install trkit</code>
+      <button class="copy" id="copyBtn" type="button">kopyala</button>
+    </div>
+    <div class="badges">
+      <a class="badge" href="https://pypi.org/project/trkit/" target="_blank" rel="noopener">PyPI · v0.1.0</a>
+      <a class="badge" href="https://github.com/ardazeybek-dev/trkit" target="_blank" rel="noopener">GitHub</a>
+      <span class="badge">MIT lisansı</span>
+      <span class="badge">Python 3.9+</span>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>Çözdüğü problem</h2>
+    <p class="sub">Python'un yerleşik <code>upper()</code> ve <code>lower()</code> metotları İngilizce kurallarına göre çalışır. Türkçedeki noktalı/noktasız <b>i</b> ayrımını bilmezler — bu yüzden şehir adlarını, isimleri, arama sorgularını sessizce bozarlar.</p>
+    <div class="compare">
+      <div class="pane bad">
+        <h3>✗ Python'un kendisi</h3>
+        <div class="line"><span class="in">"istanbul".upper()</span><span class="arrow">→</span><span class="out">ISTANBUL</span></div>
+        <div class="line"><span class="in">"IĞDIR".lower()</span><span class="arrow">→</span><span class="out">iğdır</span></div>
+        <div class="line"><span class="in">"izmir".title()</span><span class="arrow">→</span><span class="out">Izmir</span></div>
+      </div>
+      <div class="pane good">
+        <h3>✓ trkit ile</h3>
+        <div class="line"><span class="in">upper("istanbul")</span><span class="arrow">→</span><span class="out">İSTANBUL</span></div>
+        <div class="line"><span class="in">lower("IĞDIR")</span><span class="arrow">→</span><span class="out">ığdır</span></div>
+        <div class="line"><span class="in">title("izmir")</span><span class="arrow">→</span><span class="out">İzmir</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Canlı dene</h2>
+    <p class="sub">Aşağıdaki kutulara yaz, sonuçlar anında çıkar. Paketin yaptığı işin tamamı bu.</p>
+
+    <div class="cards">
+
+      <div class="card wide">
+        <h3>Metin araçları</h3>
+        <p class="hint">Bir şey yaz — beş fonksiyonun da çıktısını aynı anda gör.</p>
+        <label for="textIn">Metin</label>
+        <input type="text" id="textIn" value="Çığır Açan Şeyler" autocomplete="off" spellcheck="false">
+        <div class="samples">
+          <button type="button" data-text="istanbul">istanbul</button>
+          <button type="button" data-text="IĞDIR">IĞDIR</button>
+          <button type="button" data-text="Çiğdem Şahin">Çiğdem Şahin</button>
+          <button type="button" data-text="izmir kuş cenneti">izmir kuş cenneti</button>
+        </div>
+        <div class="results">
+          <div class="row"><span class="fn">upper()</span><span class="val" id="rUpper"></span></div>
+          <div class="row"><span class="fn">lower()</span><span class="val" id="rLower"></span></div>
+          <div class="row"><span class="fn">title()</span><span class="val" id="rTitle"></span></div>
+          <div class="row"><span class="fn">asciify()</span><span class="val" id="rAscii"></span></div>
+          <div class="row"><span class="fn">slugify()</span><span class="val" id="rSlug"></span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>TC kimlik no doğrulama</h3>
+        <p class="hint">11 hane, algoritma kontrolü. Form doğrulamalarında işe yarar.</p>
+        <label for="tcknIn">Numara</label>
+        <input type="text" id="tcknIn" inputmode="numeric" placeholder="10000000146" autocomplete="off">
+        <div class="samples">
+          <button type="button" data-tckn="10000000146">geçerli örnek</button>
+          <button type="button" data-tckn="11111111111">geçersiz örnek</button>
+        </div>
+        <div class="verdict idle" id="tcknOut"><span class="dot"></span><span>Numara bekleniyor</span></div>
+      </div>
+
+      <div class="card">
+        <h3>IBAN doğrulama</h3>
+        <p class="hint">Türkiye IBAN'ı, ISO 13616 mod-97 kontrolü. Boşluklar önemsiz.</p>
+        <label for="ibanIn">IBAN</label>
+        <input type="text" id="ibanIn" placeholder="TR33 0006 1005 1978 6457 8413 26" autocomplete="off">
+        <div class="samples">
+          <button type="button" data-iban="TR33 0006 1005 1978 6457 8413 26">geçerli örnek</button>
+          <button type="button" data-iban="TR33 0006 1005 1978 6457 8413 27">geçersiz örnek</button>
+        </div>
+        <div class="verdict idle" id="ibanOut"><span class="dot"></span><span>IBAN bekleniyor</span></div>
+      </div>
+
+      <div class="card wide">
+        <h3>Plaka ↔ il</h3>
+        <p class="hint">Kod yaz il gelsin (<code>35</code>), il yaz kod gelsin (<code>İzmir</code>). 81 il kayıtlı.</p>
+        <label for="plateIn">Plaka kodu veya il adı</label>
+        <input type="text" id="plateIn" value="35" autocomplete="off" spellcheck="false">
+        <div class="samples">
+          <button type="button" data-plate="34">34</button>
+          <button type="button" data-plate="06">06</button>
+          <button type="button" data-plate="istanbul">istanbul</button>
+          <button type="button" data-plate="Iğdır">Iğdır</button>
+        </div>
+        <div class="plate-out">
+          <div class="plate-big empty" id="plateBig">—</div>
+          <div class="plate-cap" id="plateCap">bir kod ya da il adı gir</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Nasıl kullanılır</h2>
+    <p class="sub">İki yolu var: kendi Python kodunun içinden, ya da doğrudan terminalden.</p>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-panel="py">Python içinde</button>
+      <button class="tab" role="tab" aria-selected="false" data-panel="cli">Terminalde</button>
+    </div>
+<pre id="panel-py"><span class="c"># önce kur:  pip install trkit</span>
+<span class="k">from</span> trkit <span class="k">import</span> upper, lower, title, slugify, asciify
+<span class="k">from</span> trkit <span class="k">import</span> is_valid_tckn, is_valid_iban
+<span class="k">from</span> trkit <span class="k">import</span> city_from_plate, plate_from_city
+
+upper(<span class="s">"istanbul"</span>)                 <span class="c"># 'İSTANBUL'</span>
+lower(<span class="s">"IĞDIR"</span>)                    <span class="c"># 'ığdır'</span>
+title(<span class="s">"izmir kuş cenneti"</span>)        <span class="c"># 'İzmir Kuş Cenneti'</span>
+asciify(<span class="s">"Çiğdem Şahin"</span>)            <span class="c"># 'Cigdem Sahin'</span>
+slugify(<span class="s">"Çığır Açan Şeyler"</span>)      <span class="c"># 'cigir-acan-seyler'</span>
+
+is_valid_tckn(<span class="s">"10000000146"</span>)       <span class="c"># True</span>
+is_valid_iban(<span class="s">"TR33 0006 1005 1978 6457 8413 26"</span>)  <span class="c"># True</span>
+
+city_from_plate(<span class="s">35</span>)               <span class="c"># 'İzmir'</span>
+plate_from_city(<span class="s">"İSTANBUL"</span>)         <span class="c"># 34</span></pre>
+<pre id="panel-cli" hidden><span class="k">$</span> trkit slug <span class="s">"Çığır Açan Şeyler"</span>
+cigir-acan-seyler
+
+<span class="k">$</span> trkit upper istanbul
+İSTANBUL
+
+<span class="k">$</span> trkit plaka 35
+İzmir
+
+<span class="k">$</span> trkit plaka İzmir
+35
+
+<span class="k">$</span> trkit tckn 10000000146
+geçerli
+
+<span class="c"># doğrulama komutları çıkış kodu döndürür (geçerli → 0, geçersiz → 1),
+# yani kabuk betiklerinde doğrudan kullanılabilir:</span>
+<span class="k">if</span> trkit iban <span class="s">"$IBAN"</span> &gt; /dev/null; <span class="k">then</span>
+    echo <span class="s">"IBAN kabul edildi"</span>
+<span class="k">fi</span></pre>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>
+      <a href="https://pypi.org/project/trkit/" target="_blank" rel="noopener">PyPI</a> ·
+      <a href="https://github.com/ardazeybek-dev/trkit" target="_blank" rel="noopener">GitHub</a> ·
+      <a href="https://github.com/ardazeybek-dev" target="_blank" rel="noopener">Arda Zeybek</a>
+    </p>
+    <p class="note">
+      Bu sayfa bir tanıtım/deneme sayfasıdır: paket Python ile yazılmıştır, tarayıcıda çalışabilmesi
+      için aynı mantık JavaScript'e birebir taşınmıştır. Gerçek kullanım <code>pip install trkit</code> iledir.
+      <br><br>
+      <b>Not:</b> TC kimlik doğrulaması yalnızca matematiksel bir kontroldür; numaranın gerçekten
+      birine ait olduğunu göstermez.
+    </p>
+  </div>
+</footer>
+
+<script>
+"use strict";
+
+/* ============================================================
+   trkit mantığının JavaScript karşılığı
+   Kaynak: src/trkit/{text,validate,plates}.py
+   ============================================================ */
+
+const LOWER_MAP = { "I": "ı", "İ": "i" };
+const UPPER_MAP = { "i": "İ", "ı": "I" };
+const ASCII_MAP = {
+  "ç": "c", "Ç": "C",
+  "ğ": "g", "Ğ": "G",
+  "ı": "i", "I": "I",
+  "İ": "I", "i": "i",
+  "ö": "o", "Ö": "O",
+  "ş": "s", "Ş": "S",
+  "ü": "u", "Ü": "U"
+};
+
+function trLower(text) {
+  return Array.from(text).map(c => LOWER_MAP[c] ?? c).join("").toLowerCase();
+}
+
+function trUpper(text) {
+  return Array.from(text).map(c => UPPER_MAP[c] ?? c).join("").toUpperCase();
+}
+
+function trTitle(text) {
+  // Boşlukları koruyarak böl, her kelimenin ilk harfini büyüt.
+  return text.split(/(\s+)/)
+    .map(p => (p.length && p.trim() === "") ? p : trUpper(p.slice(0, 1)) + trLower(p.slice(1)))
+    .join("");
+}
+
+function asciify(text) {
+  const mapped = Array.from(text).map(c => ASCII_MAP[c] ?? c).join("");
+  return mapped.normalize("NFKD").replace(/\p{Mn}/gu, "");
+}
+
+function slugify(text, separator = "-") {
+  // Sıra önemli: önce Türkçe küçültme, sonra ASCII'ye indirgeme.
+  const asciiText = asciify(trLower(text)).toLowerCase();
+  let slug = asciiText.replace(/[^a-z0-9]+/g, separator);
+  if (separator) {
+    while (slug.startsWith(separator)) slug = slug.slice(separator.length);
+    while (slug.endsWith(separator)) slug = slug.slice(0, -separator.length);
+  }
+  return slug;
+}
+
+function isValidTckn(value) {
+  const text = String(value).trim();
+  if (!/^[1-9][0-9]{10}$/.test(text)) return false;
+
+  const d = Array.from(text, ch => Number(ch));
+  const oddSum = d[0] + d[2] + d[4] + d[6] + d[8];
+  const evenSum = d[1] + d[3] + d[5] + d[7];
+
+  // Python'un % operatörü negatif sayılarda da pozitif kalan verir; burada taklit ediyoruz.
+  const check = (((oddSum * 7 - evenSum) % 10) + 10) % 10;
+  if (check !== d[9]) return false;
+
+  const total = d.slice(0, 10).reduce((a, b) => a + b, 0);
+  return total % 10 === d[10];
+}
+
+function isValidIban(value) {
+  const compact = String(value).replace(/\s+/g, "").toUpperCase();
+  if (!/^TR[0-9]{2}[0-9]{22}$/.test(compact)) return false;
+
+  const rearranged = compact.slice(4) + compact.slice(0, 4);
+  let numeric = "";
+  for (const ch of rearranged) {
+    numeric += /[A-Z]/.test(ch) ? String(parseInt(ch, 36)) : ch;
+  }
+  // Sayı 64 bit'e sığmayacak kadar büyük; kalanı adım adım hesapla.
+  let rem = 0;
+  for (const ch of numeric) rem = (rem * 10 + Number(ch)) % 97;
+  return rem === 1;
+}
+
+const PLATES = {
+  1: "Adana", 2: "Adıyaman", 3: "Afyonkarahisar", 4: "Ağrı", 5: "Amasya",
+  6: "Ankara", 7: "Antalya", 8: "Artvin", 9: "Aydın", 10: "Balıkesir",
+  11: "Bilecik", 12: "Bingöl", 13: "Bitlis", 14: "Bolu", 15: "Burdur",
+  16: "Bursa", 17: "Çanakkale", 18: "Çankırı", 19: "Çorum", 20: "Denizli",
+  21: "Diyarbakır", 22: "Edirne", 23: "Elazığ", 24: "Erzincan", 25: "Erzurum",
+  26: "Eskişehir", 27: "Gaziantep", 28: "Giresun", 29: "Gümüşhane", 30: "Hakkâri",
+  31: "Hatay", 32: "Isparta", 33: "Mersin", 34: "İstanbul", 35: "İzmir",
+  36: "Kars", 37: "Kastamonu", 38: "Kayseri", 39: "Kırklareli", 40: "Kırşehir",
+  41: "Kocaeli", 42: "Konya", 43: "Kütahya", 44: "Malatya", 45: "Manisa",
+  46: "Kahramanmaraş", 47: "Mardin", 48: "Muğla", 49: "Muş", 50: "Nevşehir",
+  51: "Niğde", 52: "Ordu", 53: "Rize", 54: "Sakarya", 55: "Samsun",
+  56: "Siirt", 57: "Sinop", 58: "Sivas", 59: "Tekirdağ", 60: "Tokat",
+  61: "Trabzon", 62: "Tunceli", 63: "Şanlıurfa", 64: "Uşak", 65: "Van",
+  66: "Yozgat", 67: "Zonguldak", 68: "Aksaray", 69: "Bayburt", 70: "Karaman",
+  71: "Kırıkkale", 72: "Batman", 73: "Şırnak", 74: "Bartın", 75: "Ardahan",
+  76: "Iğdır", 77: "Yalova", 78: "Karabük", 79: "Kilis", 80: "Osmaniye",
+  81: "Düzce"
+};
+
+const BY_CITY = {};
+for (const [code, city] of Object.entries(PLATES)) BY_CITY[trLower(city)] = Number(code);
+
+function cityFromPlate(code) {
+  const text = String(code).trim();
+  if (!/^[0-9]+$/.test(text)) return null;
+  return PLATES[Number(text)] ?? null;
+}
+
+function plateFromCity(city) {
+  return BY_CITY[trLower(String(city).trim())] ?? null;
+}
+
+/* ============================================================
+   Sayfa etkileşimleri
+   ============================================================ */
+
+const $ = id => document.getElementById(id);
+
+// --- metin araçları ---
+const textIn = $("textIn");
+function renderText() {
+  const v = textIn.value;
+  $("rUpper").textContent = trUpper(v);
+  $("rLower").textContent = trLower(v);
+  $("rTitle").textContent = trTitle(v);
+  $("rAscii").textContent = asciify(v);
+  $("rSlug").textContent  = slugify(v);
+}
+textIn.addEventListener("input", renderText);
+
+// --- TCKN ---
+const tcknIn = $("tcknIn"), tcknOut = $("tcknOut");
+function renderTckn() {
+  const v = tcknIn.value.trim();
+  const label = tcknOut.querySelector("span:last-child");
+  if (!v) {
+    tcknOut.className = "verdict idle";
+    label.textContent = "Numara bekleniyor";
+    return;
+  }
+  const ok = isValidTckn(v);
+  tcknOut.className = "verdict " + (ok ? "valid" : "invalid");
+  label.textContent = ok ? "Geçerli" : (v.length !== 11 ? "Geçersiz — 11 hane olmalı" : "Geçersiz — algoritma tutmuyor");
+}
+tcknIn.addEventListener("input", renderTckn);
+
+// --- IBAN ---
+const ibanIn = $("ibanIn"), ibanOut = $("ibanOut");
+function renderIban() {
+  const v = ibanIn.value.trim();
+  const label = ibanOut.querySelector("span:last-child");
+  if (!v) {
+    ibanOut.className = "verdict idle";
+    label.textContent = "IBAN bekleniyor";
+    return;
+  }
+  const ok = isValidIban(v);
+  const compact = v.replace(/\s+/g, "");
+  ibanOut.className = "verdict " + (ok ? "valid" : "invalid");
+  label.textContent = ok ? "Geçerli" : (compact.length !== 26 ? `Geçersiz — 26 karakter olmalı (şu an ${compact.length})` : "Geçersiz — kontrol hanesi tutmuyor");
+}
+ibanIn.addEventListener("input", renderIban);
+
+// --- plaka ---
+const plateIn = $("plateIn");
+function renderPlate() {
+  const v = plateIn.value.trim();
+  const big = $("plateBig"), cap = $("plateCap");
+  if (!v) {
+    big.textContent = "—"; big.className = "plate-big empty";
+    cap.textContent = "bir kod ya da il adı gir";
+    return;
+  }
+  if (/^[0-9]+$/.test(v)) {
+    const city = cityFromPlate(v);
+    big.className = "plate-big";
+    if (city) { big.textContent = city; cap.textContent = `${v} plaka kodu bu ile ait`; }
+    else { big.textContent = "bulunamadı"; big.className = "plate-big empty"; cap.textContent = "plaka kodları 1 ile 81 arasında"; }
+  } else {
+    const code = plateFromCity(v);
+    big.className = "plate-big";
+    if (code !== null) { big.textContent = String(code); cap.textContent = `${PLATES[code]} ilinin plaka kodu`; }
+    else { big.textContent = "bulunamadı"; big.className = "plate-big empty"; cap.textContent = "böyle bir il yok — yazımı kontrol et"; }
+  }
+}
+plateIn.addEventListener("input", renderPlate);
+
+// --- örnek butonları ---
+document.querySelectorAll("[data-text]").forEach(b =>
+  b.addEventListener("click", () => { textIn.value = b.dataset.text; renderText(); textIn.focus(); }));
+document.querySelectorAll("[data-tckn]").forEach(b =>
+  b.addEventListener("click", () => { tcknIn.value = b.dataset.tckn; renderTckn(); }));
+document.querySelectorAll("[data-iban]").forEach(b =>
+  b.addEventListener("click", () => { ibanIn.value = b.dataset.iban; renderIban(); }));
+document.querySelectorAll("[data-plate]").forEach(b =>
+  b.addEventListener("click", () => { plateIn.value = b.dataset.plate; renderPlate(); }));
+
+// --- sekmeler ---
+document.querySelectorAll(".tab").forEach(tab =>
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(t => {
+      const on = t === tab;
+      t.setAttribute("aria-selected", String(on));
+      $("panel-" + t.dataset.panel).hidden = !on;
+    });
+  }));
+
+// --- kopyala ---
+$("copyBtn").addEventListener("click", async () => {
+  const btn = $("copyBtn");
+  try {
+    await navigator.clipboard.writeText($("installCmd").textContent);
+    btn.textContent = "kopyalandı ✓";
+  } catch {
+    btn.textContent = "kopyalanamadı";
+  }
+  setTimeout(() => { btn.textContent = "kopyala"; }, 1600);
+});
+
+// ilk render
+renderText();
+renderTckn();
+renderIban();
+renderPlate();
+</script>
+
+</body>
+</html>
