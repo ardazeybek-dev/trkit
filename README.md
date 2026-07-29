@@ -8,6 +8,8 @@
 Türkçe metin araçları ve Türkiye'ye özgü doğrulayıcılar. Bağımlılığı hafif, tip
 bilgisi tam, hem kütüphane hem komut satırı aracı olarak kullanılabilir.
 
+**[Tarayıcıda dene →](https://trkit-arda.shipstatic.com)**
+
 > *Turkish text utilities and Türkiye-specific validators: locale-correct case
 > conversion, slugify, national ID (TCKN) and IBAN validation, licence-plate
 > lookup. Usable as a library or a CLI.*
