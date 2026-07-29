@@ -4,7 +4,7 @@ from trkit import asciify, lower, slugify, title, upper
 
 
 @pytest.mark.parametrize(
-    ("value", "expected"),
+    ("girdi", "beklenen"),
     [
         ("istanbul", "İSTANBUL"),
         ("ığdır", "IĞDIR"),
@@ -13,12 +13,12 @@ from trkit import asciify, lower, slugify, title, upper
         ("", ""),
     ],
 )
-def test_upper(value, expected):
-    assert upper(value) == expected
+def test_upper(girdi, beklenen):
+    assert upper(girdi) == beklenen
 
 
 @pytest.mark.parametrize(
-    ("value", "expected"),
+    ("girdi", "beklenen"),
     [
         ("İSTANBUL", "istanbul"),
         ("IĞDIR", "ığdır"),
@@ -26,12 +26,12 @@ def test_upper(value, expected):
         ("", ""),
     ],
 )
-def test_lower(value, expected):
-    assert lower(value) == expected
+def test_lower(girdi, beklenen):
+    assert lower(girdi) == beklenen
 
 
-def test_upper_lower_differ_from_builtins():
-    """The reason this package exists: the built-ins are wrong for Turkish."""
+def test_upper_lower_yerlesikten_farkli():
+    """Paketin var olma sebebi: yerleşik metotlar Türkçe'de yanlış sonuç verir."""
     assert "istanbul".upper() == "ISTANBUL"
     assert upper("istanbul") == "İSTANBUL"
 
@@ -39,15 +39,15 @@ def test_upper_lower_differ_from_builtins():
     assert lower("IĞDIR") == "ığdır"
 
 
-def test_lower_does_not_emit_combining_dot():
-    """'İ'.lower() yields two code points in Python; ours must yield one."""
+def test_lower_birlesik_nokta_uretmez():
+    """'İ'.lower() Python'da iki kod noktası üretir; bizim çıktımız tek olmalı."""
     assert len("İ".lower()) == 2
     assert lower("İ") == "i"
     assert len(lower("İ")) == 1
 
 
 @pytest.mark.parametrize(
-    ("value", "expected"),
+    ("girdi", "beklenen"),
     [
         ("izmir kuş cenneti", "İzmir Kuş Cenneti"),
         ("IĞDIR ovası", "Iğdır Ovası"),
@@ -55,16 +55,16 @@ def test_lower_does_not_emit_combining_dot():
         ("", ""),
     ],
 )
-def test_title(value, expected):
-    assert title(value) == expected
+def test_title(girdi, beklenen):
+    assert title(girdi) == beklenen
 
 
-def test_title_preserves_whitespace():
+def test_title_bosluklari_korur():
     assert title("a  b") == "A  B"
 
 
 @pytest.mark.parametrize(
-    ("value", "expected"),
+    ("girdi", "beklenen"),
     [
         ("Çiğdem Şahin", "Cigdem Sahin"),
         ("ığdır", "igdir"),
@@ -73,16 +73,16 @@ def test_title_preserves_whitespace():
         ("abc", "abc"),
     ],
 )
-def test_asciify(value, expected):
-    assert asciify(value) == expected
+def test_asciify(girdi, beklenen):
+    assert asciify(girdi) == beklenen
 
 
-def test_asciify_returns_only_ascii():
+def test_asciify_sadece_ascii_dondurur():
     assert asciify("ĞÜŞİÖÇığüşöç").isascii()
 
 
 @pytest.mark.parametrize(
-    ("value", "expected"),
+    ("girdi", "beklenen"),
     [
         ("Çığır Açan Şeyler", "cigir-acan-seyler"),
         ("Merhaba  Dünya!", "merhaba-dunya"),
@@ -93,22 +93,22 @@ def test_asciify_returns_only_ascii():
         ("!!!", ""),
     ],
 )
-def test_slugify(value, expected):
-    assert slugify(value) == expected
+def test_slugify(girdi, beklenen):
+    assert slugify(girdi) == beklenen
 
 
-def test_slugify_keeps_dotless_capital_i():
-    """Regression: folding to ASCII before lower-casing dropped 'I' characters."""
+def test_slugify_buyuk_i_harfini_kaybetmez():
+    """Regresyon: önce ASCII'ye indirgeyip sonra küçültmek 'I' harflerini siliyordu."""
     assert slugify("IĞDIR") == "igdir"
     assert slugify("ISPARTA") == "isparta"
 
 
-def test_slugify_separator():
+def test_slugify_ayirici():
     assert slugify("Merhaba Dünya", separator="_") == "merhaba_dunya"
     assert slugify("Merhaba Dünya", separator="") == "merhabadunya"
 
 
-def test_slugify_output_is_url_safe():
+def test_slugify_ciktisi_url_guvenli():
     slug = slugify("Ünlü Şarkıcı: 'Böyle Şeyler' (2026)")
     assert slug.isascii()
     assert all(ch.isalnum() or ch == "-" for ch in slug)

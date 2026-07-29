@@ -1,4 +1,4 @@
-"""Türkiye-specific validators: national ID (TCKN) and IBAN."""
+"""Türkiye'ye özgü doğrulayıcılar: TC kimlik numarası ve IBAN."""
 
 from __future__ import annotations
 
@@ -11,17 +11,17 @@ _IBAN_RE = re.compile(r"\ATR[0-9]{2}[0-9]{22}\Z")
 
 
 def is_valid_tckn(value: str | int) -> bool:
-    """Report whether a Turkish national ID number is algorithmically valid.
+    """TC kimlik numarasının algoritmik olarak geçerli olup olmadığını söyler.
 
-    Rules:
+    Kurallar:
 
-    1. Exactly 11 digits, all numeric, first digit non-zero.
-    2. ``(sum of digits 1, 3, 5, 7, 9 * 7 - sum of digits 2, 4, 6, 8) mod 10``
-       must equal the 10th digit.
-    3. The sum of the first 10 digits modulo 10 must equal the 11th digit.
+    1. 11 hane, tamamı rakam, ilk hane sıfır olamaz.
+    2. ``(1., 3., 5., 7., 9. hanelerin toplamı * 7 - 2., 4., 6., 8. hanelerin
+       toplamı) mod 10`` 10. haneye eşit olmalıdır.
+    3. İlk 10 hanenin toplamının 10'a bölümünden kalan 11. haneye eşit olmalıdır.
 
-    This is a checksum test only; it does not prove the number is issued to
-    an actual person.
+    Bu yalnızca matematiksel bir kontroldür; numaranın gerçekten birine ait
+    olduğunu göstermez.
 
     >>> is_valid_tckn("10000000146")
     True
@@ -42,11 +42,11 @@ def is_valid_tckn(value: str | int) -> bool:
 
 
 def is_valid_iban(value: str) -> bool:
-    """Report whether a Türkiye IBAN is valid.
+    """Türkiye IBAN'ının geçerli olup olmadığını söyler.
 
-    Whitespace is ignored. The check is the ISO 13616 mod-97 test: the first
-    four characters are moved to the end, letters are converted to numbers
-    (A=10 … Z=35), and the result modulo 97 must equal 1.
+    Boşluklar yok sayılır. Doğrulama, ISO 13616'daki mod-97 kontrolüdür:
+    ilk dört karakter sona taşınır, harfler sayıya çevrilir (A=10 … Z=35) ve
+    sonucun 97'ye bölümünden kalan 1 olmalıdır.
 
     >>> is_valid_iban("TR33 0006 1005 1978 6457 8413 26")
     True

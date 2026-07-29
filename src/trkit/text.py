@@ -1,12 +1,12 @@
-"""Turkish-aware text operations.
+"""Türkçe metin işlemleri.
 
-Python's built-in ``str.upper()`` / ``str.lower()`` do not know about the
-Turkish dotted/dotless ``i`` distinction::
+Python'un yerleşik ``str.upper()`` / ``str.lower()`` metotları Türkçe'nin
+noktalı/noktasız ``i`` ayrımını bilmez::
 
-    "istanbul".upper()   -> "ISTANBUL"   (wrong, should be "İSTANBUL")
-    "IĞDIR".lower()      -> "iğdır"      (wrong, should be "ığdır")
+    "istanbul".upper()   -> "ISTANBUL"   (yanlış, doğrusu "İSTANBUL")
+    "IĞDIR".lower()      -> "iğdır"      (yanlış, doğrusu "ığdır")
 
-The functions in this module apply the Turkish rules instead.
+Bu modüldeki fonksiyonlar bu dönüşümleri Türkçe kurallarına göre yapar.
 """
 
 from __future__ import annotations
@@ -16,14 +16,14 @@ import unicodedata
 
 __all__ = ["asciify", "lower", "slugify", "title", "upper"]
 
-# Letters that must be mapped before lower-casing. In Python "İ".lower()
-# produces two code points ("i" + combining dot), so we map it up front.
+# Küçültmeden önce eşlenmesi gereken harfler. "İ".lower() Python'da iki kod
+# noktası ("i" + birleşik nokta) üretir; bu yüzden önce eşliyoruz.
 _LOWER_MAP = {"I": "ı", "İ": "i"}
 
-# Letters that must be mapped before upper-casing.
+# Büyütmeden önce eşlenmesi gereken harfler.
 _UPPER_MAP = {"i": "İ", "ı": "I"}
 
-# ASCII counterparts of the Turkish letters.
+# Türkçe harflerin ASCII karşılıkları.
 # fmt: off
 _ASCII_MAP = {
     "ç": "c", "Ç": "C",
@@ -38,7 +38,7 @@ _ASCII_MAP = {
 
 
 def lower(text: str) -> str:
-    """Lower-case text using Turkish rules.
+    """Metni Türkçe kurallarına göre küçük harfe çevirir.
 
     >>> lower("IĞDIR")
     'ığdır'
@@ -49,7 +49,7 @@ def lower(text: str) -> str:
 
 
 def upper(text: str) -> str:
-    """Upper-case text using Turkish rules.
+    """Metni Türkçe kurallarına göre büyük harfe çevirir.
 
     >>> upper("istanbul")
     'İSTANBUL'
@@ -60,9 +60,9 @@ def upper(text: str) -> str:
 
 
 def title(text: str) -> str:
-    """Capitalise the first letter of each word using Turkish rules.
+    """Her kelimenin ilk harfini Türkçe kurallarına göre büyütür.
 
-    Whitespace between words is preserved.
+    Kelime ayırıcı boşluklar korunur.
 
     >>> title("izmir kuş cenneti")
     'İzmir Kuş Cenneti'
@@ -72,7 +72,7 @@ def title(text: str) -> str:
 
 
 def asciify(text: str) -> str:
-    """Replace Turkish letters with ASCII counterparts and drop remaining accents.
+    """Türkçe harfleri ASCII karşılıklarına çevirir, kalan aksanları atar.
 
     >>> asciify("Çiğdem Şahin")
     'Cigdem Sahin'
@@ -83,20 +83,20 @@ def asciify(text: str) -> str:
 
 
 def slugify(text: str, separator: str = "-") -> str:
-    """Convert text into a URL-safe slug.
+    """Metni URL'de kullanılabilir bir slug'a çevirir.
 
-    Turkish letters are folded to ASCII, every run of non-alphanumeric
-    characters is replaced with ``separator``, and leading, trailing and
-    repeated separators are collapsed.
+    Türkçe harfler ASCII'ye indirgenir, alfanümerik olmayan her şey
+    ``separator`` ile değiştirilir, baştaki/sondaki ve tekrar eden
+    ayırıcılar temizlenir.
 
     >>> slugify("Çığır Açan Şeyler")
     'cigir-acan-seyler'
     >>> slugify("Merhaba  Dünya!", separator="_")
     'merhaba_dunya'
     """
-    # Order matters: lower-case with Turkish rules first, then fold to ASCII.
-    # The other way around, "IĞDIR" would become "IGDIR" first, then the
-    # Turkish rule would turn "I" into "ı", which is not ASCII and gets dropped.
+    # Sıra önemli: önce Türkçe küçültme, sonra ASCII'ye indirgeme. Ters sırada
+    # "IĞDIR" önce "IGDIR" olur, ardından Türkçe kural "I" harfini "ı" yapar ve
+    # ASCII olmadığı için elenir.
     ascii_text = asciify(lower(text)).lower()
     slug = re.sub(r"[^a-z0-9]+", separator, ascii_text)
     if separator:
