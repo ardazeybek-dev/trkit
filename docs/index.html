@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="tr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>trkit — Turkish text utilities</title>
-<meta name="description" content="Turkish text utilities and Türkiye-specific validators: locale-correct case conversion, slugify, national ID (TCKN), IBAN and licence-plate lookup. A Python package.">
+<title>trkit — Türkçe metin araçları</title>
+<meta name="description" content="Türkçe metin araçları ve Türkiye'ye özgü doğrulayıcılar: doğru büyük/küçük harf, slug, TC kimlik no, IBAN, plaka. Python paketi.">
 <meta name="theme-color" content="#0d1117">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23e63946'/%3E%3Ctext x='32' y='45' font-family='monospace' font-size='34' font-weight='bold' fill='%23fff' text-anchor='middle'%3Etr%3C/text%3E%3C/svg%3E">
 <style>
@@ -57,7 +57,7 @@
   .logo span { color: var(--accent); }
   .tagline {
     margin: 18px auto 0;
-    max-width: 32rem;
+    max-width: 30rem;
     color: var(--muted);
     font-size: 1.05rem;
   }
@@ -221,7 +221,7 @@
   footer { padding: 44px 0 60px; text-align: center; color: var(--muted); font-size: .87rem; }
   footer a { color: var(--text); text-decoration: none; border-bottom: 1px solid var(--line); }
   footer a:hover { border-color: var(--accent); }
-  .note { margin-top: 18px; font-size: .8rem; max-width: 42rem; margin-inline: auto; line-height: 1.6; }
+  .note { margin-top: 18px; font-size: .8rem; max-width: 40rem; margin-inline: auto; line-height: 1.6; }
 </style>
 </head>
 <body>
@@ -229,34 +229,34 @@
 <header>
   <div class="wrap">
     <h1 class="logo">tr<span>kit</span></h1>
-    <p class="tagline">Turkish text utilities and Türkiye-specific validators. A Python package — usable as a library or a command line tool.</p>
+    <p class="tagline">Türkçe metin araçları ve Türkiye'ye özgü doğrulayıcılar. Python paketi — hem kütüphane, hem komut satırı aracı.</p>
     <div class="install">
       <span class="prompt">$</span>
       <code id="installCmd">pip install trkit</code>
-      <button class="copy" id="copyBtn" type="button">copy</button>
+      <button class="copy" id="copyBtn" type="button">kopyala</button>
     </div>
     <div class="badges">
-      <a class="badge" href="https://pypi.org/project/trkit/" target="_blank" rel="noopener">PyPI</a>
+      <a class="badge" href="https://pypi.org/project/trkit/" target="_blank" rel="noopener">PyPI · v0.1.0</a>
       <a class="badge" href="https://github.com/ardazeybek-dev/trkit" target="_blank" rel="noopener">GitHub</a>
-      <span class="badge">MIT licence</span>
-      <span class="badge">Python 3.10+</span>
+      <span class="badge">MIT lisansı</span>
+      <span class="badge">Python 3.9+</span>
     </div>
   </div>
 </header>
 
 <section>
   <div class="wrap">
-    <h2>The problem it solves</h2>
-    <p class="sub">Python's built-in <code>upper()</code> and <code>lower()</code> follow English rules. They do not know about the Turkish dotted/dotless <b>i</b> distinction — so they quietly corrupt city names, personal names and search queries.</p>
+    <h2>Çözdüğü problem</h2>
+    <p class="sub">Python'un yerleşik <code>upper()</code> ve <code>lower()</code> metotları İngilizce kurallarına göre çalışır. Türkçedeki noktalı/noktasız <b>i</b> ayrımını bilmezler — bu yüzden şehir adlarını, isimleri, arama sorgularını sessizce bozarlar.</p>
     <div class="compare">
       <div class="pane bad">
-        <h3>✗ Plain Python</h3>
+        <h3>✗ Python'un kendisi</h3>
         <div class="line"><span class="in">"istanbul".upper()</span><span class="arrow">→</span><span class="out">ISTANBUL</span></div>
         <div class="line"><span class="in">"IĞDIR".lower()</span><span class="arrow">→</span><span class="out">iğdır</span></div>
         <div class="line"><span class="in">"izmir".title()</span><span class="arrow">→</span><span class="out">Izmir</span></div>
       </div>
       <div class="pane good">
-        <h3>✓ With trkit</h3>
+        <h3>✓ trkit ile</h3>
         <div class="line"><span class="in">upper("istanbul")</span><span class="arrow">→</span><span class="out">İSTANBUL</span></div>
         <div class="line"><span class="in">lower("IĞDIR")</span><span class="arrow">→</span><span class="out">ığdır</span></div>
         <div class="line"><span class="in">title("izmir")</span><span class="arrow">→</span><span class="out">İzmir</span></div>
@@ -267,15 +267,15 @@
 
 <section>
   <div class="wrap">
-    <h2>Try it live</h2>
-    <p class="sub">Type into the boxes below — results update as you type. This is everything the package does.</p>
+    <h2>Canlı dene</h2>
+    <p class="sub">Aşağıdaki kutulara yaz, sonuçlar anında çıkar. Paketin yaptığı işin tamamı bu.</p>
 
     <div class="cards">
 
       <div class="card wide">
-        <h3>Text utilities</h3>
-        <p class="hint">Type anything and see the output of all five functions at once.</p>
-        <label for="textIn">Text</label>
+        <h3>Metin araçları</h3>
+        <p class="hint">Bir şey yaz — beş fonksiyonun da çıktısını aynı anda gör.</p>
+        <label for="textIn">Metin</label>
         <input type="text" id="textIn" value="Çığır Açan Şeyler" autocomplete="off" spellcheck="false">
         <div class="samples">
           <button type="button" data-text="istanbul">istanbul</button>
@@ -293,33 +293,33 @@
       </div>
 
       <div class="card">
-        <h3>National ID (TCKN)</h3>
-        <p class="hint">11 digits, checksum validation. Handy in form validation.</p>
-        <label for="tcknIn">Number</label>
+        <h3>TC kimlik no doğrulama</h3>
+        <p class="hint">11 hane, algoritma kontrolü. Form doğrulamalarında işe yarar.</p>
+        <label for="tcknIn">Numara</label>
         <input type="text" id="tcknIn" inputmode="numeric" placeholder="10000000146" autocomplete="off">
         <div class="samples">
-          <button type="button" data-tckn="10000000146">valid example</button>
-          <button type="button" data-tckn="11111111111">invalid example</button>
+          <button type="button" data-tckn="10000000146">geçerli örnek</button>
+          <button type="button" data-tckn="11111111111">geçersiz örnek</button>
         </div>
-        <div class="verdict idle" id="tcknOut"><span class="dot"></span><span>Waiting for a number</span></div>
+        <div class="verdict idle" id="tcknOut"><span class="dot"></span><span>Numara bekleniyor</span></div>
       </div>
 
       <div class="card">
-        <h3>IBAN validation</h3>
-        <p class="hint">Türkiye IBAN, ISO 13616 mod-97 check. Spaces are ignored.</p>
+        <h3>IBAN doğrulama</h3>
+        <p class="hint">Türkiye IBAN'ı, ISO 13616 mod-97 kontrolü. Boşluklar önemsiz.</p>
         <label for="ibanIn">IBAN</label>
         <input type="text" id="ibanIn" placeholder="TR33 0006 1005 1978 6457 8413 26" autocomplete="off">
         <div class="samples">
-          <button type="button" data-iban="TR33 0006 1005 1978 6457 8413 26">valid example</button>
-          <button type="button" data-iban="TR33 0006 1005 1978 6457 8413 27">invalid example</button>
+          <button type="button" data-iban="TR33 0006 1005 1978 6457 8413 26">geçerli örnek</button>
+          <button type="button" data-iban="TR33 0006 1005 1978 6457 8413 27">geçersiz örnek</button>
         </div>
-        <div class="verdict idle" id="ibanOut"><span class="dot"></span><span>Waiting for an IBAN</span></div>
+        <div class="verdict idle" id="ibanOut"><span class="dot"></span><span>IBAN bekleniyor</span></div>
       </div>
 
       <div class="card wide">
-        <h3>Plate code ↔ province</h3>
-        <p class="hint">Type a code to get the province (<code>35</code>), or a province to get the code (<code>İzmir</code>). All 81 provinces included.</p>
-        <label for="plateIn">Plate code or province name</label>
+        <h3>Plaka ↔ il</h3>
+        <p class="hint">Kod yaz il gelsin (<code>35</code>), il yaz kod gelsin (<code>İzmir</code>). 81 il kayıtlı.</p>
+        <label for="plateIn">Plaka kodu veya il adı</label>
         <input type="text" id="plateIn" value="35" autocomplete="off" spellcheck="false">
         <div class="samples">
           <button type="button" data-plate="34">34</button>
@@ -329,7 +329,7 @@
         </div>
         <div class="plate-out">
           <div class="plate-big empty" id="plateBig">—</div>
-          <div class="plate-cap" id="plateCap">enter a code or a province name</div>
+          <div class="plate-cap" id="plateCap">bir kod ya da il adı gir</div>
         </div>
       </div>
 
@@ -339,13 +339,13 @@
 
 <section>
   <div class="wrap">
-    <h2>How to use it</h2>
-    <p class="sub">Two ways: from inside your own Python code, or straight from the terminal.</p>
+    <h2>Nasıl kullanılır</h2>
+    <p class="sub">İki yolu var: kendi Python kodunun içinden, ya da doğrudan terminalden.</p>
     <div class="tabs" role="tablist">
-      <button class="tab" role="tab" aria-selected="true" data-panel="py">In Python</button>
-      <button class="tab" role="tab" aria-selected="false" data-panel="cli">In the terminal</button>
+      <button class="tab" role="tab" aria-selected="true" data-panel="py">Python içinde</button>
+      <button class="tab" role="tab" aria-selected="false" data-panel="cli">Terminalde</button>
     </div>
-<pre id="panel-py"><span class="c"># install first:  pip install trkit</span>
+<pre id="panel-py"><span class="c"># önce kur:  pip install trkit</span>
 <span class="k">from</span> trkit <span class="k">import</span> upper, lower, title, slugify, asciify
 <span class="k">from</span> trkit <span class="k">import</span> is_valid_tckn, is_valid_iban
 <span class="k">from</span> trkit <span class="k">import</span> city_from_plate, plate_from_city
@@ -367,19 +367,19 @@ cigir-acan-seyler
 <span class="k">$</span> trkit upper istanbul
 İSTANBUL
 
-<span class="k">$</span> trkit plate 35
+<span class="k">$</span> trkit plaka 35
 İzmir
 
-<span class="k">$</span> trkit plate İzmir
+<span class="k">$</span> trkit plaka İzmir
 35
 
 <span class="k">$</span> trkit tckn 10000000146
-valid
+geçerli
 
-<span class="c"># validation commands return a meaningful exit code (valid → 0, invalid → 1),
-# so they can be used directly in shell scripts:</span>
+<span class="c"># doğrulama komutları çıkış kodu döndürür (geçerli → 0, geçersiz → 1),
+# yani kabuk betiklerinde doğrudan kullanılabilir:</span>
 <span class="k">if</span> trkit iban <span class="s">"$IBAN"</span> &gt; /dev/null; <span class="k">then</span>
-    echo <span class="s">"IBAN accepted"</span>
+    echo <span class="s">"IBAN kabul edildi"</span>
 <span class="k">fi</span></pre>
   </div>
 </section>
@@ -392,12 +392,11 @@ valid
       <a href="https://github.com/ardazeybek-dev" target="_blank" rel="noopener">Arda Zeybek</a>
     </p>
     <p class="note">
-      This is a demo page: the package itself is written in Python, and the same logic has been
-      ported to JavaScript so it can run in the browser. For real use, install it with
-      <code>pip install trkit</code>.
+      Bu sayfa bir tanıtım/deneme sayfasıdır: paket Python ile yazılmıştır, tarayıcıda çalışabilmesi
+      için aynı mantık JavaScript'e birebir taşınmıştır. Gerçek kullanım <code>pip install trkit</code> iledir.
       <br><br>
-      <b>Note:</b> national ID validation is a checksum test only; it does not prove the number is
-      issued to an actual person.
+      <b>Not:</b> TC kimlik doğrulaması yalnızca matematiksel bir kontroldür; numaranın gerçekten
+      birine ait olduğunu göstermez.
     </p>
   </div>
 </footer>
@@ -406,8 +405,8 @@ valid
 "use strict";
 
 /* ============================================================
-   JavaScript port of the trkit logic
-   Source: src/trkit/{text,validate,plates}.py
+   trkit mantığının JavaScript karşılığı
+   Kaynak: src/trkit/{text,validate,plates}.py
    ============================================================ */
 
 const LOWER_MAP = { "I": "ı", "İ": "i" };
@@ -431,7 +430,7 @@ function trUpper(text) {
 }
 
 function trTitle(text) {
-  // Split while preserving whitespace, then capitalise each word.
+  // Boşlukları koruyarak böl, her kelimenin ilk harfini büyüt.
   return text.split(/(\s+)/)
     .map(p => (p.length && p.trim() === "") ? p : trUpper(p.slice(0, 1)) + trLower(p.slice(1)))
     .join("");
@@ -443,7 +442,7 @@ function asciify(text) {
 }
 
 function slugify(text, separator = "-") {
-  // Order matters: lower-case with Turkish rules first, then fold to ASCII.
+  // Sıra önemli: önce Türkçe küçültme, sonra ASCII'ye indirgeme.
   const asciiText = asciify(trLower(text)).toLowerCase();
   let slug = asciiText.replace(/[^a-z0-9]+/g, separator);
   if (separator) {
@@ -461,7 +460,7 @@ function isValidTckn(value) {
   const oddSum = d[0] + d[2] + d[4] + d[6] + d[8];
   const evenSum = d[1] + d[3] + d[5] + d[7];
 
-  // Python's % always returns a non-negative result; mimic that here.
+  // Python'un % operatörü negatif sayılarda da pozitif kalan verir; burada taklit ediyoruz.
   const check = (((oddSum * 7 - evenSum) % 10) + 10) % 10;
   if (check !== d[9]) return false;
 
@@ -478,7 +477,7 @@ function isValidIban(value) {
   for (const ch of rearranged) {
     numeric += /[A-Z]/.test(ch) ? String(parseInt(ch, 36)) : ch;
   }
-  // The number is too large for 64-bit maths; take the remainder step by step.
+  // Sayı 64 bit'e sığmayacak kadar büyük; kalanı adım adım hesapla.
   let rem = 0;
   for (const ch of numeric) rem = (rem * 10 + Number(ch)) % 97;
   return rem === 1;
@@ -518,12 +517,12 @@ function plateFromCity(city) {
 }
 
 /* ============================================================
-   Page interactions
+   Sayfa etkileşimleri
    ============================================================ */
 
 const $ = id => document.getElementById(id);
 
-// --- text utilities ---
+// --- metin araçları ---
 const textIn = $("textIn");
 function renderText() {
   const v = textIn.value;
@@ -542,12 +541,12 @@ function renderTckn() {
   const label = tcknOut.querySelector("span:last-child");
   if (!v) {
     tcknOut.className = "verdict idle";
-    label.textContent = "Waiting for a number";
+    label.textContent = "Numara bekleniyor";
     return;
   }
   const ok = isValidTckn(v);
   tcknOut.className = "verdict " + (ok ? "valid" : "invalid");
-  label.textContent = ok ? "Valid" : (v.length !== 11 ? "Invalid — must be 11 digits" : "Invalid — checksum does not match");
+  label.textContent = ok ? "Geçerli" : (v.length !== 11 ? "Geçersiz — 11 hane olmalı" : "Geçersiz — algoritma tutmuyor");
 }
 tcknIn.addEventListener("input", renderTckn);
 
@@ -558,41 +557,41 @@ function renderIban() {
   const label = ibanOut.querySelector("span:last-child");
   if (!v) {
     ibanOut.className = "verdict idle";
-    label.textContent = "Waiting for an IBAN";
+    label.textContent = "IBAN bekleniyor";
     return;
   }
   const ok = isValidIban(v);
   const compact = v.replace(/\s+/g, "");
   ibanOut.className = "verdict " + (ok ? "valid" : "invalid");
-  label.textContent = ok ? "Valid" : (compact.length !== 26 ? `Invalid — must be 26 characters (currently ${compact.length})` : "Invalid — check digits do not match");
+  label.textContent = ok ? "Geçerli" : (compact.length !== 26 ? `Geçersiz — 26 karakter olmalı (şu an ${compact.length})` : "Geçersiz — kontrol hanesi tutmuyor");
 }
 ibanIn.addEventListener("input", renderIban);
 
-// --- plate ---
+// --- plaka ---
 const plateIn = $("plateIn");
 function renderPlate() {
   const v = plateIn.value.trim();
   const big = $("plateBig"), cap = $("plateCap");
   if (!v) {
     big.textContent = "—"; big.className = "plate-big empty";
-    cap.textContent = "enter a code or a province name";
+    cap.textContent = "bir kod ya da il adı gir";
     return;
   }
   if (/^[0-9]+$/.test(v)) {
     const city = cityFromPlate(v);
     big.className = "plate-big";
-    if (city) { big.textContent = city; cap.textContent = `province for plate code ${v}`; }
-    else { big.textContent = "not found"; big.className = "plate-big empty"; cap.textContent = "plate codes run from 1 to 81"; }
+    if (city) { big.textContent = city; cap.textContent = `${v} plaka kodu bu ile ait`; }
+    else { big.textContent = "bulunamadı"; big.className = "plate-big empty"; cap.textContent = "plaka kodları 1 ile 81 arasında"; }
   } else {
     const code = plateFromCity(v);
     big.className = "plate-big";
-    if (code !== null) { big.textContent = String(code); cap.textContent = `plate code for ${PLATES[code]}`; }
-    else { big.textContent = "not found"; big.className = "plate-big empty"; cap.textContent = "no such province — check the spelling"; }
+    if (code !== null) { big.textContent = String(code); cap.textContent = `${PLATES[code]} ilinin plaka kodu`; }
+    else { big.textContent = "bulunamadı"; big.className = "plate-big empty"; cap.textContent = "böyle bir il yok — yazımı kontrol et"; }
   }
 }
 plateIn.addEventListener("input", renderPlate);
 
-// --- example buttons ---
+// --- örnek butonları ---
 document.querySelectorAll("[data-text]").forEach(b =>
   b.addEventListener("click", () => { textIn.value = b.dataset.text; renderText(); textIn.focus(); }));
 document.querySelectorAll("[data-tckn]").forEach(b =>
@@ -602,7 +601,7 @@ document.querySelectorAll("[data-iban]").forEach(b =>
 document.querySelectorAll("[data-plate]").forEach(b =>
   b.addEventListener("click", () => { plateIn.value = b.dataset.plate; renderPlate(); }));
 
-// --- tabs ---
+// --- sekmeler ---
 document.querySelectorAll(".tab").forEach(tab =>
   tab.addEventListener("click", () => {
     document.querySelectorAll(".tab").forEach(t => {
@@ -612,19 +611,19 @@ document.querySelectorAll(".tab").forEach(tab =>
     });
   }));
 
-// --- copy ---
+// --- kopyala ---
 $("copyBtn").addEventListener("click", async () => {
   const btn = $("copyBtn");
   try {
     await navigator.clipboard.writeText($("installCmd").textContent);
-    btn.textContent = "copied ✓";
+    btn.textContent = "kopyalandı ✓";
   } catch {
-    btn.textContent = "copy failed";
+    btn.textContent = "kopyalanamadı";
   }
-  setTimeout(() => { btn.textContent = "copy"; }, 1600);
+  setTimeout(() => { btn.textContent = "kopyala"; }, 1600);
 });
 
-// initial render
+// ilk render
 renderText();
 renderTckn();
 renderIban();
