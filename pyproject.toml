@@ -1,0 +1,67 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "trkit"
+dynamic = ["version"]
+description = "Türkçe metin araçları ve Türkiye'ye özgü doğrulayıcılar: slug, doğru büyük/küçük harf, TC kimlik no, IBAN, plaka."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+authors = [
+    { name = "Arda Zeybek", email = "179981861+ardazeybek-dev@users.noreply.github.com" },
+]
+keywords = ["turkish", "turkce", "slug", "slugify", "tckn", "iban", "plaka", "validation", "cli"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Natural Language :: Turkish",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: Linguistic",
+    "Typing :: Typed",
+]
+dependencies = ["typer>=0.12"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.urls]
+Homepage = "https://github.com/ardazeybek-dev/trkit"
+Repository = "https://github.com/ardazeybek-dev/trkit"
+Issues = "https://github.com/ardazeybek-dev/trkit/issues"
+
+[project.scripts]
+trkit = "trkit.cli:main"
+
+[tool.hatch.version]
+path = "src/trkit/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/trkit"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/trkit", "tests", "README.md", "LICENSE"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.format]
+# README'deki örneklerin hizalı yorumları biçimlendiriciyle bozuluyor.
+exclude = ["*.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

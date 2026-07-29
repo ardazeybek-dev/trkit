@@ -1,0 +1,3 @@
+# Depoda satır sonları daima LF olsun; Windows'ta çalışma kopyası
+# platformun kendi biçimini kullanabilir.
+* text=auto eol=lf
