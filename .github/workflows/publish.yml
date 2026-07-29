@@ -1,0 +1,49 @@
+name: Publish
+
+# GitHub'da bir sürüm (release) yayımlandığında paketi PyPI'a gönderir.
+# Kimlik doğrulama "trusted publishing" ile yapılır: depoda saklanan bir API
+# token'ı yoktur, PyPI bu iş akışına doğrudan güvenir.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Paketi derle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Derleme araçlarını kur
+        run: pip install build twine
+
+      - name: Derle
+        run: python -m build
+
+      - name: Meta veriyi doğrula
+        run: twine check dist/*
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    name: PyPI'a gönder
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      # Trusted publishing için gerekli; parola/token yerine bu kullanılır.
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
