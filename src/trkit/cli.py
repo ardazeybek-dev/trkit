@@ -1,4 +1,4 @@
-"""``trkit`` komut satırı arayüzü."""
+"""``trkit`` command line interface."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from . import __version__, plates, text, validate
 
 app = typer.Typer(
     name="trkit",
-    help="Türkçe metin araçları ve Türkiye'ye özgü doğrulayıcılar.",
+    help="Turkish text utilities and Türkiye-specific validators.",
     no_args_is_help=True,
     add_completion=False,
 )
@@ -31,90 +31,112 @@ def _root(
             "-V",
             callback=_version_callback,
             is_eager=True,
-            help="Sürümü yazdırıp çıkar.",
+            help="Print the version and exit.",
         ),
     ] = False,
 ) -> None:
-    """Türkçe metin araçları ve Türkiye'ye özgü doğrulayıcılar."""
+    """Turkish text utilities and Türkiye-specific validators."""
 
 
 def _report(ok: bool) -> None:
-    """Doğrulama sonucunu yazar; geçersizse çıkış kodu 1 olur.
+    """Print the validation result; exit with code 1 when invalid.
 
-    Çıkış kodu, aracın kabuk betiklerinde ``if trkit tckn ...`` şeklinde
-    kullanılabilmesi için anlamlıdır.
+    The exit code is meaningful so the tool can be used directly in shell
+    scripts, e.g. ``if trkit tckn "$VALUE"; then ...``.
     """
-    typer.echo("geçerli" if ok else "geçersiz")
+    typer.echo("valid" if ok else "invalid")
     raise typer.Exit(code=0 if ok else 1)
 
 
 @app.command()
 def slug(
-    metin: Annotated[str, typer.Argument(help="Slug'a çevrilecek metin.")],
-    ayirici: Annotated[str, typer.Option("--ayirici", "-a", help="Kelime ayırıcı.")] = "-",
+    text_: Annotated[str, typer.Argument(metavar="TEXT", help="Text to slugify.")],
+    separator: Annotated[str, typer.Option("--separator", "-s", help="Word separator.")] = "-",
 ) -> None:
-    """Metni URL'de kullanılabilir slug'a çevirir."""
-    typer.echo(text.slugify(metin, separator=ayirici))
+    """Convert text into a URL-safe slug."""
+    typer.echo(text.slugify(text_, separator=separator))
 
 
 @app.command()
-def upper(metin: Annotated[str, typer.Argument(help="Büyütülecek metin.")]) -> None:
-    """Metni Türkçe kurallarına göre BÜYÜK harfe çevirir."""
-    typer.echo(text.upper(metin))
+def upper(
+    text_: Annotated[str, typer.Argument(metavar="TEXT", help="Text to upper-case.")],
+) -> None:
+    """Upper-case text using Turkish rules."""
+    typer.echo(text.upper(text_))
 
 
 @app.command()
-def lower(metin: Annotated[str, typer.Argument(help="Küçültülecek metin.")]) -> None:
-    """Metni Türkçe kurallarına göre küçük harfe çevirir."""
-    typer.echo(text.lower(metin))
+def lower(
+    text_: Annotated[str, typer.Argument(metavar="TEXT", help="Text to lower-case.")],
+) -> None:
+    """Lower-case text using Turkish rules."""
+    typer.echo(text.lower(text_))
 
 
 @app.command()
-def title(metin: Annotated[str, typer.Argument(help="Başlık formatına çevrilecek metin.")]) -> None:
-    """Her kelimenin ilk harfini Türkçe kurallarına göre büyütür."""
-    typer.echo(text.title(metin))
+def title(
+    text_: Annotated[str, typer.Argument(metavar="TEXT", help="Text to title-case.")],
+) -> None:
+    """Capitalise the first letter of each word using Turkish rules."""
+    typer.echo(text.title(text_))
 
 
 @app.command(name="ascii")
-def ascii_(metin: Annotated[str, typer.Argument(help="ASCII'ye indirgenecek metin.")]) -> None:
-    """Türkçe harfleri ASCII karşılıklarına çevirir."""
-    typer.echo(text.asciify(metin))
-
-
-@app.command()
-def tckn(numara: Annotated[str, typer.Argument(help="11 haneli TC kimlik numarası.")]) -> None:
-    """TC kimlik numarasını doğrular. Geçersizse çıkış kodu 1'dir."""
-    _report(validate.is_valid_tckn(numara))
-
-
-@app.command()
-def iban(numara: Annotated[str, typer.Argument(help="TR ile başlayan IBAN.")]) -> None:
-    """Türkiye IBAN'ını doğrular. Geçersizse çıkış kodu 1'dir."""
-    _report(validate.is_valid_iban(numara))
-
-
-@app.command()
-def plaka(
-    deger: Annotated[str, typer.Argument(help="Plaka kodu (35) veya il adı (İzmir).")],
+def ascii_(
+    text_: Annotated[str, typer.Argument(metavar="TEXT", help="Text to fold to ASCII.")],
 ) -> None:
-    """Plaka kodundan il adını, il adından plaka kodunu bulur."""
-    deger = deger.strip()
-    if deger.isdigit():
-        city = plates.city_from_plate(deger)
+    """Replace Turkish letters with their ASCII counterparts."""
+    typer.echo(text.asciify(text_))
+
+
+@app.command()
+def tckn(number: Annotated[str, typer.Argument(help="11-digit Turkish national ID.")]) -> None:
+    """Validate a Turkish national ID (TCKN). Exit code is 1 when invalid."""
+    _report(validate.is_valid_tckn(number))
+
+
+@app.command()
+def iban(number: Annotated[str, typer.Argument(help="IBAN starting with TR.")]) -> None:
+    """Validate a Türkiye IBAN. Exit code is 1 when invalid."""
+    _report(validate.is_valid_iban(number))
+
+
+def _plate_lookup(value: str) -> None:
+    value = value.strip()
+    if value.isdigit():
+        city = plates.city_from_plate(value)
         if city is None:
-            typer.echo(f"'{deger}' geçerli bir plaka kodu değil.", err=True)
+            typer.echo(f"'{value}' is not a valid plate code.", err=True)
             raise typer.Exit(code=1)
         typer.echo(city)
     else:
-        code = plates.plate_from_city(deger)
+        code = plates.plate_from_city(value)
         if code is None:
-            typer.echo(f"'{deger}' adında bir il bulunamadı.", err=True)
+            typer.echo(f"No province named '{value}'.", err=True)
             raise typer.Exit(code=1)
         typer.echo(str(code))
 
 
+@app.command()
+def plate(
+    value: Annotated[str, typer.Argument(help="Plate code (35) or province name (İzmir).")],
+) -> None:
+    """Look up a province from its plate code, or a plate code from a province."""
+    _plate_lookup(value)
+
+
+# 0.1.0 shipped this command under its Turkish name; kept as a hidden alias so
+# existing scripts keep working. Prefer ``plate``.
+@app.command(name="plaka", hidden=True)
+def plaka(
+    value: Annotated[str, typer.Argument(help="Plate code (35) or province name (İzmir).")],
+) -> None:
+    """Deprecated alias for ``plate``."""
+    _plate_lookup(value)
+
+
 def main() -> None:
-    """Konsol betiği giriş noktası."""
+    """Console script entry point."""
     app()
 
 
