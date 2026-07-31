@@ -20,7 +20,7 @@ Python'un yerleşik metotları Türkçe'nin noktalı/noktasız `i` ayrımını b
 
 ```python
 "istanbul".upper()   # 'ISTANBUL'  ← yanlış
-"IĞDIR".lower()      # 'iğdır'     ← yanlış
+"IĞDIR".lower()      # 'iğdir'     ← yanlış
 ```
 
 `trkit` bu dönüşümleri doğru yapar ve yanına Türkiye'de sık gereken birkaç
