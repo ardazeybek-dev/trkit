@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  # Windows koşucularında Türkçe çıktının bozulmaması için.
+  # Keeps Turkish output from being mangled on the Windows runners.
   PYTHONUTF8: "1"
 
 jobs:
@@ -23,7 +23,7 @@ jobs:
           cache: pip
           cache-dependency-path: pyproject.toml
 
-      - name: Bağımlılıkları kur
+      - name: Install dependencies
         run: pip install -e ".[dev]"
 
       - name: ruff check
@@ -50,14 +50,14 @@ jobs:
           cache: pip
           cache-dependency-path: pyproject.toml
 
-      - name: Bağımlılıkları kur
+      - name: Install dependencies
         run: pip install -e ".[dev]"
 
-      - name: Testler
+      - name: Tests
         run: pytest
 
   build:
-    name: Paket derlenebiliyor mu
+    name: Does the package build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -66,11 +66,11 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Derleme araçlarını kur
+      - name: Install build tools
         run: pip install build twine
 
-      - name: Paketi derle
+      - name: Build the package
         run: python -m build
 
-      - name: Paket meta verisini doğrula
+      - name: Validate package metadata
         run: twine check dist/*
