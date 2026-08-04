@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "trkit"
 dynamic = ["version"]
-description = "Türkçe metin araçları ve Türkiye'ye özgü doğrulayıcılar: slug, doğru büyük/küçük harf, TC kimlik no, IBAN, plaka."
+description = "Turkish text utilities and Türkiye-specific validators: locale-correct case conversion, slugify, national ID (TCKN), IBAN and licence-plate lookup."
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
@@ -59,7 +59,7 @@ target-version = "py310"
 select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.ruff.format]
-# README'deki örneklerin hizalı yorumları biçimlendiriciyle bozuluyor.
+# The formatter breaks the aligned comments in the README examples.
 exclude = ["*.md"]
 
 [tool.pytest.ini_options]

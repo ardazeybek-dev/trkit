@@ -1,4 +1,4 @@
-"""Plaka kodu ↔ il adı dönüşümleri."""
+"""Licence-plate code ↔ province name conversions."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from .text import lower
 
 __all__ = ["PLATES", "city_from_plate", "plate_from_city"]
 
-#: Plaka kodundan il adına eşleme (1-81).
+#: Mapping from plate code to province name (1-81).
 # fmt: off
 PLATES: dict[int, str] = {
     1: "Adana", 2: "Adıyaman", 3: "Afyonkarahisar", 4: "Ağrı", 5: "Amasya",
@@ -29,13 +29,13 @@ PLATES: dict[int, str] = {
 }
 # fmt: on
 
-# İl adından plaka koduna ters eşleme. Anahtarlar Türkçe kurallarına göre
-# küçültülür, böylece "istanbul", "İSTANBUL" ve "İstanbul" aynı sonucu verir.
+# Reverse mapping from province name to plate code. Keys are lower-cased with
+# Turkish rules so "istanbul", "İSTANBUL" and "İstanbul" all resolve the same.
 _BY_CITY: dict[str, int] = {lower(city): code for code, city in PLATES.items()}
 
 
 def city_from_plate(code: int | str) -> str | None:
-    """Plaka kodunun il adını döndürür, kod geçersizse ``None``.
+    """Return the province name for a plate code, or ``None`` if invalid.
 
     >>> city_from_plate(35)
     'İzmir'
@@ -52,9 +52,9 @@ def city_from_plate(code: int | str) -> str | None:
 
 
 def plate_from_city(city: str) -> int | None:
-    """İl adının plaka kodunu döndürür, il bulunamazsa ``None``.
+    """Return the plate code for a province name, or ``None`` if not found.
 
-    Büyük/küçük harf duyarsızdır.
+    Case-insensitive.
 
     >>> plate_from_city("İSTANBUL")
     34
