@@ -5,34 +5,35 @@
 [![Python](https://img.shields.io/pypi/pyversions/trkit.svg)](https://pypi.org/project/trkit/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-Türkçe metin araçları ve Türkiye'ye özgü doğrulayıcılar. Bağımlılığı hafif, tip
-bilgisi tam, hem kütüphane hem komut satırı aracı olarak kullanılabilir.
+Turkish text utilities and Türkiye-specific validators. Light on dependencies,
+fully typed, usable both as a library and as a command line tool.
 
-**[Tarayıcıda dene →](https://trkit-arda.shipstatic.com)**
+**[Try it in your browser →](https://trkit-arda.shipstatic.com)**
 
-> *Turkish text utilities and Türkiye-specific validators: locale-correct case
-> conversion, slugify, national ID (TCKN) and IBAN validation, licence-plate
-> lookup. Usable as a library or a CLI.*
+## Why
 
-## Neden?
-
-Python'un yerleşik metotları Türkçe'nin noktalı/noktasız `i` ayrımını bilmez:
+Python's built-in string methods do not know about the Turkish dotted/dotless
+`i` distinction, so they quietly corrupt city names, personal names and search
+queries:
 
 ```python
-"istanbul".upper()   # 'ISTANBUL'  ← yanlış
-"IĞDIR".lower()      # 'iğdir'     ← yanlış
+"istanbul".upper()   # 'ISTANBUL'  ← wrong, should be 'İSTANBUL'
+"IĞDIR".lower()      # 'iğdir'     ← wrong, should be 'ığdır'
+"izmir".title()      # 'Izmir'     ← wrong, should be 'İzmir'
 ```
 
-`trkit` bu dönüşümleri doğru yapar ve yanına Türkiye'de sık gereken birkaç
-doğrulayıcı ekler.
+`trkit` applies the Turkish casing rules correctly, and adds a few validators
+that come up constantly when building software for Türkiye.
 
-## Kurulum
+## Installation
 
 ```bash
 pip install trkit
 ```
 
-## Kütüphane olarak kullanım
+Requires Python 3.10 or newer.
+
+## Library usage
 
 ```python
 from trkit import upper, lower, title, slugify, asciify
@@ -53,7 +54,7 @@ city_from_plate(35)               # 'İzmir'
 plate_from_city("İSTANBUL")       # 34
 ```
 
-## Komut satırından kullanım
+## Command line usage
 
 ```bash
 $ trkit slug "Çığır Açan Şeyler"
@@ -62,46 +63,46 @@ cigir-acan-seyler
 $ trkit upper istanbul
 İSTANBUL
 
-$ trkit plaka 35
+$ trkit plate 35
 İzmir
 
-$ trkit plaka İzmir
+$ trkit plate İzmir
 35
 
 $ trkit tckn 10000000146
-geçerli
+valid
 ```
 
-Doğrulama komutları anlamlı çıkış kodu döndürür (geçerli → `0`, geçersiz → `1`),
-böylece kabuk betiklerinde doğrudan kullanılabilir:
+Validation commands return a meaningful exit code (valid → `0`, invalid → `1`),
+so they can be used directly in shell scripts:
 
 ```bash
 if trkit iban "$IBAN" > /dev/null; then
-    echo "IBAN kabul edildi"
+    echo "IBAN accepted"
 fi
 ```
 
-Tüm komutlar için: `trkit --help`
+Run `trkit --help` for the full command list.
 
 ## API
 
-| Fonksiyon | Açıklama |
+| Function | Description |
 | --- | --- |
-| `upper(text)` | Türkçe kurallarına göre BÜYÜK harf |
-| `lower(text)` | Türkçe kurallarına göre küçük harf |
-| `title(text)` | Her Kelimenin İlk Harfi Büyük |
-| `asciify(text)` | Türkçe harfleri ASCII'ye indirger |
-| `slugify(text, separator="-")` | URL'de kullanılabilir slug üretir |
-| `is_valid_tckn(value)` | TC kimlik no algoritma kontrolü |
-| `is_valid_iban(value)` | Türkiye IBAN mod-97 kontrolü |
-| `city_from_plate(code)` | Plaka kodu → il adı |
-| `plate_from_city(city)` | İl adı → plaka kodu |
-| `PLATES` | `{kod: il}` sözlüğü (81 il) |
+| `upper(text)` | Upper-case using Turkish rules |
+| `lower(text)` | Lower-case using Turkish rules |
+| `title(text)` | Capitalise The First Letter Of Each Word |
+| `asciify(text)` | Fold Turkish letters down to ASCII |
+| `slugify(text, separator="-")` | Produce a URL-safe slug |
+| `is_valid_tckn(value)` | Turkish national ID checksum validation |
+| `is_valid_iban(value)` | Türkiye IBAN mod-97 validation |
+| `city_from_plate(code)` | Plate code → province name |
+| `plate_from_city(city)` | Province name → plate code |
+| `PLATES` | `{code: province}` mapping (81 provinces) |
 
-`is_valid_tckn` yalnızca matematiksel bir kontroldür; numaranın gerçekten
-birine ait olduğunu göstermez.
+`is_valid_tckn` is a checksum test only; it does not prove that the number is
+issued to an actual person.
 
-## Geliştirme
+## Development
 
 ```bash
 git clone https://github.com/ardazeybek-dev/trkit.git
@@ -110,10 +111,27 @@ python -m venv .venv
 .venv\Scripts\activate        # Linux/macOS: source .venv/bin/activate
 pip install -e ".[dev]"
 
-pytest                          # testler
+pytest                          # tests
 ruff check .                    # lint
+ruff format .                   # formatting
 ```
 
-## Lisans
+## Changelog
+
+### 0.2.0
+
+Documentation and the command line interface are now in English, so the project
+is usable outside Turkish-speaking teams. **The library API is unchanged.**
+
+- `trkit plaka` is now `trkit plate` — the old name still works as a hidden alias.
+- `--ayirici` is now `--separator` (short flag `-s`).
+- Validation commands print `valid` / `invalid` instead of `geçerli` / `geçersiz`.
+  Exit codes are unchanged, so shell scripts checking the exit status keep working.
+
+### 0.1.0
+
+Initial release.
+
+## License
 
 [MIT](LICENSE) © Arda Zeybek
