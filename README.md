@@ -33,6 +33,10 @@ pip install trkit
 
 Requires Python 3.10 or newer.
 
+Working in JavaScript or TypeScript? The same functions, plus phone, VKN,
+plate validators and Zod schemas, are in
+[`@ardazeybek-dev/trkit`](https://github.com/ardazeybek-dev/trkit-js) on npm.
+
 ## Library usage
 
 ```python
